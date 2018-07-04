@@ -10,11 +10,59 @@ import pypresence
 from pypresence import Presence
 import psutil
 
-# Full Metal Panic Season 2 episode 4
-# \\AppData\\Local\\Packages\\FunimationProductionsLTD.FunimationNow_nat5s4eq2a0cr\\AC\\INetHistory\\mms\\HUOPOA32\\1345116_English_431a16b9-c95a-e711-8175-020165574d09[1].dat'
+# TODO list
+# * Figure out how to use the episode ID to get more useful information about what's playing.
+# * Setup this app as a Windows service. It could either just check perodically for the Funimation process,
+#       or I could investigate if there's a way for the OS to wake us up somehow.
+# * Get the current time of whatever's playing (need to dive into memory for this most likely)
+# * Get the playing state (paused/playing)
+# * Link to open app
+# * Link to open the specific episode in the app
 
-# Star blazers 2202 episode 6
-# \\AppData\\Local\\Packages\\FunimationProductionsLTD.FunimationNow_nat5s4eq2a0cr\\AC\\INetHistory\\mms\\8R20Y2ZD\\1757485_English_4e54fc08-004f-e811-8175-020165574d09[1].dat'
+
+# Want to follow Discord's recommendations as much as possible here
+# https://discordapp.com/developers/docs/rich-presence/best-practices
+# Ideal status information
+#   Show name
+#   Season number
+#   Episode number
+#   Episode name
+#   Start time, current time, or end time (so we can show elapsed/remaining using startTimestamp/endTimestamp) 
+
+# Example:
+#   Funimation
+#   Full Metal Panic!
+#   S2 E9 | Her Problem
+#   Elapsed: 6:03
+
+# Other useful information that might be excessive, but let's see if we can get it
+#   Season name
+
+# TODO: 
+# Some examples:
+#   Star Blazers 2202 Episode 6: 1757485 (English)
+#   Full Metal Panic Season 2 Episode 4: 1345116 (English)
+#   Full Metal Panic Season 2 Episode 7: 1345122 (English)
+#   Full Metal Panic Season 2 Episode 8: 1345124 (English)
+#   Full Metal Panic Season 2 Episode 9: 1345126 (English)
+
+# I suspect the episode "id" is incremented by two per episode since there may be two audo languages, English and Japanese.
+# The app doesn't make it easy to switch languages, however, so don't have a easy way to validate this hypothesis.
+# Either way, we can get the language from the filename. 
+
+def get_episode_id(proc):
+    # Returns Episode ID and Language
+    open_files = proc.open_files()
+    for file in open_files:
+        if 'INetHistory' in file.path:
+            # Example of path:
+            # \\AppData\\Local\\Packages\\FunimationProductionsLTD.FunimationNow_nat5s4eq2a0cr\\AC\\INetHistory
+            # \\mms\\HUOPOA32\\1345116_English_431a16b9-c95a-e711-8175-020165574d09[1].dat
+            base = os.path.basename(file.path)
+            parts = base.split('_')
+            return parts[0], parts[1] # Episode ID, Language
+    # TODO: raise an error?
+    return ()
 
 
 def get_process(name='funimation'):
@@ -24,21 +72,6 @@ def get_process(name='funimation'):
             proc.name(), proc.pid, proc.status())
             return proc
     logging.warning("Couldn't find process %s", name)
-
-
-def get_episode_id(proc):
-    # Returns Episode ID and Language
-    open_files = proc.open_files()
-    for file in open_files:
-        if 'INetHistory' in file.path:
-            base = os.path.basename(file.path)
-            parts = base.split('_')
-            return parts[0], parts[1] # Episode ID, Language
-    # TODO: raise an error?
-    return ()
-
-# Full Metal Panic Episode 7: 1345122
-# Full Metal Panic Episode 8: 1345124
 
 
 def main():
@@ -63,7 +96,6 @@ def main():
         print(episode_id)
         print(language)
         time.sleep(10)
-
 
     # from pprint import pprint as pp
     # print(process)
