@@ -19,6 +19,7 @@ import psutil
 # * Get the playing state (paused/playing)
 # * Link to open app
 # * Link to open the specific episode in the app
+# * Put in a badge and shoutout to pypresence
 
 # Want to follow Discord's recommendations as much as possible here
 # https://discordapp.com/developers/docs/rich-presence/best-practices
@@ -86,15 +87,25 @@ def main():
 
     RPC = Presence(client_id, pipe=0)  # Initialize the client class
     RPC.connect() # Start the handshake loop
-    atexit.register(RPC.close)
+    atexit.register(RPC.close)  # Ensure it get's closed on exit
 
     # Get the Funimation process
     process = get_process('funimation')  # TODO: check for none
 
+    # There seems to be some...interesting permissions on the executable,
+    # making it only spawnable by Ye Olde svchost. Will likely need to
+    # open it the "canonical" way, whatever that is for UWP apps.
+    # cmdline = process.cmdline()
+    # logging.debug("Program cmdline: %s", ' '.join(cmdline))
+
     # TODO: when I make it a service, just wait around for process to respawn when it dies
     while process.is_running():
-        episode_id, language = get_episode_id(process)
-        logging.debug("Episode ID: %s\tLanguage: %s", episode_id, language)
+        try:
+            episode_id, language = get_episode_id(process)
+        except ValueError:
+            logging.info("No episode playing")
+        else:
+            logging.debug("Episode ID: %s\tLanguage: %s", episode_id, language)
         time.sleep(10)
 
     # from pprint import pprint as pp
