@@ -6,6 +6,7 @@ import json
 import time
 import os.path
 import sys
+from pprint import pprint, pformat
 
 import pypresence
 from pypresence import Presence
@@ -35,6 +36,11 @@ import psutil
 #   Full Metal Panic!
 #   S2 E9 | Her Problem
 #   Elapsed: 6:03
+# Format:
+#   App name
+#   Details (this will wrap lines)
+#   Status (string)
+#   start (int)
 
 # Other useful information that might be excessive, but let's see if we can get it
 #   Season name
@@ -106,12 +112,17 @@ def main():
             logging.info("No episode playing")
         else:
             logging.debug("Episode ID: %s\tLanguage: %s", episode_id, language)
+            details = "Watching episode " + episode_id
+            state = "Language: " + language
+            logging.debug("Updating presence...\nPID      %d\n"
+                          "Details  %s\nState    %s", 
+                          process.pid, details, state)
+            RPC.update(pid=process.pid, details=details, state=state)
         time.sleep(10)
 
-    # from pprint import pprint as pp
     # print(process)
-    # pp(process.open_files())
-    # pp(process.connections('all'))
+    # pprint(process.open_files())
+    # pprint(process.connections('all'))
     # print(process.exe())
     # print(process.cwd())
     # print(process.cmdline())
