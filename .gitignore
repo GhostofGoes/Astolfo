@@ -1,6 +1,10 @@
 # File containing Discord Client ID and Secret
 app_config.json
 
+# Packet Captures
+*.pcap
+*.pcapng
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

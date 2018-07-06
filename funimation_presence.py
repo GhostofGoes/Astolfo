@@ -57,6 +57,22 @@ import psutil
 # The app doesn't make it easy to switch languages, however, so don't have a easy way to validate this hypothesis.
 # Either way, we can get the language from the filename.
 
+# Homepage IP (nslookup funimation.com): 107.154.106.169
+# No episode playing:
+#   172.217.12.14 - This is a Google analytics server
+#
+# Playing episodes:
+#   107.154.108.80:443
+#   143.204.31.65:443
+#   172.217.12.14:80
+#   172.217.12.4:443
+#   38.122.56.118:443
+
+
+DEBUG = True
+unique_ips = set()
+
+
 def get_episode_id(proc):
     # Returns Episode ID and Language
     open_files = proc.open_files()
@@ -91,7 +107,7 @@ def main():
     # we probably don't need the secret for this
     # secret = app_config["secret"]
 
-    RPC = Presence(client_id, pipe=0)  # Initialize the client class
+    RPC = Presence(client_id)  # Initialize the client class
     RPC.connect() # Start the handshake loop
     atexit.register(RPC.close)  # Ensure it get's closed on exit
 
@@ -118,6 +134,11 @@ def main():
                           "Details  %s\nState    %s", 
                           process.pid, details, state)
             RPC.update(pid=process.pid, details=details, state=state)
+        if DEBUG:
+            # pprint(process.connections('all'))
+            for conn in process.connections():
+                unique_ips.add((conn.raddr.ip, conn.raddr.port))
+            pprint(unique_ips)
         time.sleep(10)
 
     # print(process)
