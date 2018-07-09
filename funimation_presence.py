@@ -52,6 +52,7 @@ import psutil
 #   Full Metal Panic Season 2 Episode 8: 1345124 (English)
 #   Full Metal Panic Season 2 Episode 9: 1345126 (English)
 #   Full Metal Panic Season 2 Episode 10: 1345128 (English)
+#   Full Metal Panic Season 3 Episode 1: 1755434 (English)
 
 # I suspect the episode "id" is incremented by two per episode since there may be two audo languages, English and Japanese.
 # The app doesn't make it easy to switch languages, however, so don't have a easy way to validate this hypothesis.
@@ -68,12 +69,13 @@ import psutil
 #   172.217.12.4:443
 #   38.122.56.118:443
 
-
+# "Discord_UpdatePresence() has a rate limit of one update per 15 seconds"
+UPDATE_RATE = 15
 DEBUG = True
 unique_ips = set()
 
 
-def get_episode_id(proc):
+def get_episode_id(proc: psutil.Process) -> tuple:
     # Returns Episode ID and Language
     open_files = proc.open_files()
     for file in open_files:
@@ -88,14 +90,29 @@ def get_episode_id(proc):
     return ()
 
 
-def get_process(name='funimation'):
+def get_process(name: str = 'funimation') -> psutil.Process:
     for proc in psutil.process_iter():
         if name.lower() in proc.name().lower():
             logging.debug("Found process %s (PID: %d, Status: %s)", 
                           proc.name(), proc.pid, proc.status())
             return proc
-    logging.warning("Couldn't find process %s", name)
+    logging.warning(f"Couldn't find process {name}")
 
+
+def lookup_episode(episode_id: str) -> dict:
+    # maybe do some lookup dictionary
+    details = {}
+    id = int(episode_id)
+    for size in ['large']:  # , 'small'
+        # if episode_id.startswith('13451'):
+        if (id >= 1755434 and id <= 1755450) or \
+           (id >= 1345110 and id <= 1345140):
+            details[f'{size}_image'] = f"full_metal_panic_{size}"
+            details[f'{size}_text'] = "Full Metal Panic!"
+        else:
+            details[f'{size}_image'] = f"funimation_logo_{size}"
+            details[f'{size}_text'] = "FunimationNow!"
+    return details
 
 def main():
     logging.basicConfig(datefmt="%H:%M:%S", level=logging.DEBUG,
@@ -127,19 +144,22 @@ def main():
         except ValueError:
             logging.info("No episode playing")
         else:
-            logging.debug("Episode ID: %s\tLanguage: %s", episode_id, language)
-            details = "Watching episode " + episode_id
-            state = "Language: " + language
-            logging.debug("Updating presence...\nPID      %d\n"
-                          "Details  %s\nState    %s", 
-                          process.pid, details, state)
-            RPC.update(pid=process.pid, details=details, state=state)
+            logging.info(f"Episode ID: {episode_id}\tLanguage: {language}")
+            kwargs = {
+                'pid': process.pid,
+                'details': f"Watching episode {episode_id}",
+                'state': f"Language: {language}"
+            }
+            kwargs.update(lookup_episode(episode_id))
+            logging.debug(f"Updating presence...\n{pformat(kwargs)}")
+            RPC.update(**kwargs)
         if DEBUG:
             # pprint(process.connections('all'))
             for conn in process.connections():
                 unique_ips.add((conn.raddr.ip, conn.raddr.port))
             pprint(unique_ips)
-        time.sleep(10)
+        logging.debug(f"Sleeping for {UPDATE_RATE} seconds...")
+        time.sleep(UPDATE_RATE)
 
     # print(process)
     # pprint(process.open_files())
@@ -148,6 +168,12 @@ def main():
     # print(process.cwd())
     # print(process.cmdline())
 
+
+    # Assets
+    #   funimation_logo_large
+    #   funimation_logo_small
+    #   full_metal_panic_large
+    #   full_metal_panic_small
 
 if __name__ == '__main__':
     main()
