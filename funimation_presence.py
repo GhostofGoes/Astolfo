@@ -2,7 +2,6 @@
 
 import atexit
 import logging
-import json
 import time
 import os.path
 import sys
@@ -118,9 +117,7 @@ def main():
     logging.basicConfig(datefmt="%H:%M:%S", level=logging.DEBUG,
                         format="%(asctime)s %(levelname)-7s %(name)-7s %(message)s")
     logging.getLogger('asyncio').setLevel(logging.ERROR)
-    with open('app_config.json') as f:
-        client_id = json.load(f)["client_id"] 
-
+    client_id = "463903446764879892"
     RPC = Presence(client_id)  # Initialize the client class
     RPC.connect() # Start the handshake loop
     atexit.register(RPC.close)  # Ensure it get's closed on exit
