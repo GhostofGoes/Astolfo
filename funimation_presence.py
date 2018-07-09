@@ -103,15 +103,15 @@ def lookup_episode(episode_id: str) -> dict:
     # maybe do some lookup dictionary
     details = {}
     id = int(episode_id)
-    for size in ['large']:  # , 'small'
-        # if episode_id.startswith('13451'):
-        if (id >= 1755434 and id <= 1755450) or \
-           (id >= 1345110 and id <= 1345140):
-            details[f'{size}_image'] = f"full_metal_panic_{size}"
-            details[f'{size}_text'] = "Full Metal Panic!"
-        else:
-            details[f'{size}_image'] = f"funimation_logo_{size}"
-            details[f'{size}_text'] = "FunimationNow!"
+    if (id >= 1755434 and id <= 1755450) or \
+        (id >= 1345110 and id <= 1345140):
+        details[f'large_image'] = f"full_metal_panic_large"
+        details[f'large_text'] = "Full Metal Panic!"
+        details[f'small_image'] = f"funimation_logo_small"
+        details[f'small_text'] = "FunimationNow"
+    else:
+        details[f'large_image'] = f"funimation_logo_large"
+        details[f'large_text'] = "FunimationNow"
     return details
 
 def main():
@@ -119,10 +119,7 @@ def main():
                         format="%(asctime)s %(levelname)-7s %(name)-7s %(message)s")
     logging.getLogger('asyncio').setLevel(logging.ERROR)
     with open('app_config.json') as f:
-        app_config = json.load(f)
-    client_id = app_config["client_id"]
-    # we probably don't need the secret for this
-    # secret = app_config["secret"]
+        client_id = json.load(f)["client_id"] 
 
     RPC = Presence(client_id)  # Initialize the client class
     RPC.connect() # Start the handshake loop
@@ -168,12 +165,10 @@ def main():
     # print(process.cwd())
     # print(process.cmdline())
 
-
     # Assets
     #   funimation_logo_large
     #   funimation_logo_small
     #   full_metal_panic_large
-    #   full_metal_panic_small
 
 if __name__ == '__main__':
     main()
