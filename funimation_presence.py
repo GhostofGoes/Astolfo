@@ -124,6 +124,10 @@ def main():
 
     # Get the Funimation process
     process = get_process('funimation')  # TODO: check for none
+    if process is None:
+        logging.error("Could not find the Funimation process. "
+                      "Ensure it's running first, then try again.")
+        sys.exit(1)
 
     # There seems to be some...interesting permissions on the executable,
     # making it only spawnable by Ye Olde svchost. Will likely need to
