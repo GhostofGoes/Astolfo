@@ -7,169 +7,117 @@ import os.path
 import sys
 from pprint import pprint, pformat
 
-import pypresence
 from pypresence import Presence
 import psutil
 
-# TODO list
-# * Figure out how to use the episode ID to get more useful information about what's playing.
-# * Setup this app as a Windows service. It could either just check perodically for the Funimation process,
-#       or I could investigate if there's a way for the OS to wake us up somehow.
-# * Get the current time of whatever's playing (need to dive into memory for this most likely)
-# * Get the playing state (paused/playing)
-# * Link to open app
-# * Link to open the specific episode in the app
-# * Put in a badge and shoutout to pypresence
-
-# Want to follow Discord's recommendations as much as possible here
-# https://discordapp.com/developers/docs/rich-presence/best-practices
-# Ideal status information
-#   Show name
-#   Season number
-#   Episode number
-#   Episode name
-#   Start time, current time, or end time (so we can show elapsed/remaining using startTimestamp/endTimestamp) 
-
-# Example:
-#   Funimation
-#   Full Metal Panic!
-#   S2 E9 | Her Problem
-#   Elapsed: 6:03
-# Format:
-#   App name
-#   Details (this will wrap lines)
-#   Status (string)
-#   start (int)
-
-# Other useful information that might be excessive, but let's see if we can get it
-#   Season name
-
-# Some examples:
-#   Star Blazers 2202 Episode 6: 1757485 (English)
-#   Full Metal Panic Season 2 Episode 4: 1345116 (English)
-#   Full Metal Panic Season 2 Episode 7: 1345122 (English)
-#   Full Metal Panic Season 2 Episode 8: 1345124 (English)
-#   Full Metal Panic Season 2 Episode 9: 1345126 (English)
-#   Full Metal Panic Season 2 Episode 10: 1345128 (English)
-#   Full Metal Panic Season 3 Episode 1: 1755434 (English)
-
-# I suspect the episode "id" is incremented by two per episode since there may be two audo languages, English and Japanese.
-# The app doesn't make it easy to switch languages, however, so don't have a easy way to validate this hypothesis.
-# Either way, we can get the language from the filename.
-
-# Homepage IP (nslookup funimation.com): 107.154.106.169
-# No episode playing:
-#   172.217.12.14 - This is a Google analytics server
-#
-# Playing episodes:
-#   107.154.108.80:443
-#   143.204.31.65:443
-#   172.217.12.14:80
-#   172.217.12.4:443
-#   38.122.56.118:443
 
 # "Discord_UpdatePresence() has a rate limit of one update per 15 seconds"
 UPDATE_RATE = 15
+CLIENT_ID = "463903446764879892"
 DEBUG = True
-unique_ips = set()
+PROCS = {  # This enables us to alias in the future if need be
+    'crunchyroll': 'CR.WinApp.exe',
+    'funimation': 'Funimation.exe',
+    # TODO: this is incorrect, as wwahost is a host for apps, not an app
+    'netflix': 'WWAHost.exe',
+}
 
 
-def get_episode_id(proc: psutil.Process) -> tuple:
-    # Returns Episode ID and Language
-    open_files = proc.open_files()
-    for file in open_files:
-        if 'INetHistory' in file.path:
-            # Example of path:
-            # \\AppData\\Local\\Packages\\FunimationProductionsLTD.FunimationNow_nat5s4eq2a0cr\\AC\\INetHistory
-            # \\mms\\HUOPOA32\\1345116_English_431a16b9-c95a-e711-8175-020165574d09[1].dat
-            base = os.path.basename(file.path)
-            parts = base.split('_')
-            return parts[0], parts[1] # Episode ID, Language
-    # TODO: raise an error instead of returning a empty tuple?
-    return ()
-
-
-def get_process(name: str = 'funimation') -> psutil.Process:
+def get_process(name: str) -> psutil.Process:
     for proc in psutil.process_iter():
         if name.lower() in proc.name().lower():
-            logging.debug("Found process %s (PID: %d, Status: %s)", 
-                          proc.name(), proc.pid, proc.status())
+            logging.debug(f"Found process {proc.name()} "
+                          f"(PID: {proc.pid}, "
+                          f"Status: {proc.status()})")
             return proc
-    logging.warning(f"Couldn't find process {name}")
+    logging.warning(f"Couldn't find proc {name}")
 
 
-def lookup_episode(episode_id: str) -> dict:
-    # maybe do some lookup dictionary
-    details = {}
-    id = int(episode_id)
-    if (id >= 1755434 and id <= 1755450) or \
-        (id >= 1345110 and id <= 1345140):
-        details[f'large_image'] = f"full_metal_panic_large"
-        details[f'large_text'] = "Full Metal Panic!"
-        details[f'small_image'] = f"funimation_logo_small"
-        details[f'small_text'] = "FunimationNow"
-    else:
-        details[f'large_image'] = f"funimation_logo_large"
-        details[f'large_text'] = "FunimationNow"
-    return details
+# TODO: classes for each client type, e.g. Crunchyroll, Netflix, etc.
+class PresenceClient:
 
-def main():
-    logging.basicConfig(datefmt="%H:%M:%S", level=logging.DEBUG,
-                        format="%(asctime)s %(levelname)-7s %(name)-7s %(message)s")
-    logging.getLogger('asyncio').setLevel(logging.ERROR)
-    client_id = "463903446764879892"
-    RPC = Presence(client_id)  # Initialize the client class
-    RPC.connect() # Start the handshake loop
-    atexit.register(RPC.close)  # Ensure it get's closed on exit
+    def __init__(self, name: str, discord: Presence):
+        self.name = name
+        self.process_name = PROCS[name]
+        self.proc = get_process(self.process_name)
+        if self.proc is None:
+            logging.error(f"Could not find the process {self.process_name} "
+                          f"for {name.capitalize()}. Ensure it's running, "
+                          f"then try again.")
+            sys.exit(1)
+        else:
+            self.discord = discord
 
-    # Get the Funimation process
-    process = get_process('funimation')  # TODO: check for none
-    if process is None:
-        logging.error("Could not find the Funimation process. "
-                      "Ensure it's running first, then try again.")
-        sys.exit(1)
+    def get_episode_id(self) -> tuple:
+        """Returns Episode ID and Language."""
+        open_files = self.proc.open_files()
+        for file in open_files:
+            # See notes.md for an example of the file path (it's really long)
+            if 'INetHistory' in file.path:
+                base = os.path.basename(file.path)
+                parts = base.split('_')
+                return parts[0], parts[1]  # Episode ID, Language
+        # TODO: raise an error instead of returning a empty tuple?
+        return ()
 
-    # There seems to be some...interesting permissions on the executable,
-    # making it only spawnable by Ye Olde svchost. Will likely need to
-    # open it the "canonical" way, whatever that is for UWP apps.
-    # cmdline = process.cmdline()
-    # logging.debug("Program cmdline: %s", ' '.join(cmdline))
+    @staticmethod
+    def lookup_episode(episode_id: str) -> dict:
+        # maybe do some lookup dictionary
+        details = {}
+        eid = int(episode_id)
+        if (eid >= 1755434 and eid <= 1755450) or \
+           (eid >= 1345110 and eid <= 1345140):
+            details[f'large_image'] = f"full_metal_panic_large"
+            details[f'large_text'] = "Full Metal Panic!"
+            details[f'small_image'] = f"funimation_logo_small"
+            details[f'small_text'] = "FunimationNow"
+        else:
+            details[f'large_image'] = f"funimation_logo_large"
+            details[f'large_text'] = "FunimationNow"
+        return details
 
-    # TODO: when I make it a service, just wait around for process to respawn when it dies
-    while process.is_running():
+    def update(self):
         try:
-            episode_id, language = get_episode_id(process)
+            episode_id, language = self.get_episode_id()
         except ValueError:
             logging.info("No episode playing")
         else:
             logging.info(f"Episode ID: {episode_id}\tLanguage: {language}")
             kwargs = {
-                'pid': process.pid,
+                'pid': self.proc.pid,
                 'details': f"Watching episode {episode_id}",
                 'state': f"Language: {language}"
             }
-            kwargs.update(lookup_episode(episode_id))
+            kwargs.update(self.lookup_episode(episode_id))
             logging.debug(f"Updating presence...\n{pformat(kwargs)}")
-            RPC.update(**kwargs)
+            self.discord.update(**kwargs)
+
+
+def main():
+    logging.basicConfig(datefmt="%H:%M:%S", level=logging.DEBUG,
+                        format="%(asctime)s %(levelname)-7s %(message)s")
+    logging.getLogger('asyncio').setLevel(logging.ERROR)
+
+    discord_client = Presence(CLIENT_ID)  # Initialize the client class
+    discord_client.connect()  # Start the handshake loop
+    atexit.register(discord_client.close)  # Ensure it get's closed on exit
+
+    client_name = 'funimation'
+    client = PresenceClient(client_name, discord_client)
+
+    unique_ips = set()
+
+    # TODO: when I make it a service, just wait around for proc to respawn when it dies
+    while client.proc.is_running():
+        client.update()
         if DEBUG:
-            # pprint(process.connections('all'))
-            for conn in process.connections():
+            # pprint(proc.connections('all'))
+            for conn in client.proc.connections():
                 unique_ips.add((conn.raddr.ip, conn.raddr.port))
             pprint(unique_ips)
         logging.debug(f"Sleeping for {UPDATE_RATE} seconds...")
         time.sleep(UPDATE_RATE)
 
-    # print(process)
-    # pprint(process.open_files())
-    # pprint(process.connections('all'))
-    # print(process.exe())
-    # print(process.cwd())
-    # print(process.cmdline())
-
-    # Assets
-    #   funimation_logo_large
-    #   funimation_logo_small
-    #   full_metal_panic_large
 
 if __name__ == '__main__':
     main()
