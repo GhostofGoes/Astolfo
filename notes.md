@@ -1,5 +1,5 @@
 # TODO list
-* Figure out how to use the episode ID to get more useful information about what's playing.
+* Rename project to "media-discord-presence" or something.
 * Setup this app as a Windows service. It could either just check perodically for the Funimation process,
       or I could investigate if there's a way for the OS to wake us up somehow.
 * Get the current time of whatever's playing (need to dive into memory for this most likely)

@@ -9,5 +9,5 @@ Discord status (aka Rich Presence) for the Funimation app on Windows 10.
 Requires Python 3.6+ ([link](https://www.python.org/downloads/release/python-370/))
 ```powershell
 pip install --user -r requirements.txt
-python .\funimation_presence.py
+python .\run.py
 ```
