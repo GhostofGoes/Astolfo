@@ -2,7 +2,9 @@
 [![pypresence](https://img.shields.io/badge/using-pypresence-00bb88.svg?style=for-the-badge&logo=discord&logoWidth=20)](https://github.com/qwertyquerty/pypresence)
 
 
-Discord status (aka Rich Presence) for the Funimation app on Windows 10.
+Discord status (aka Rich Presence) for Windows 10 Microsoft store apps.
+Currently, I am working on support for Crunchyroll and Funimation, with
+goals of expanding it to Netflix, Rooster Teeth, and others in the future.
 
 
 ## Usage

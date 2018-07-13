@@ -8,6 +8,7 @@ monitoring it. We could just check perodically, or perhaps there's a way
 for Windows to notify us.
 * Configuration via INI/JSON file. Need this to configure as a Windows
 service, as well as adding some flexibility.
+* Improve logging output so we have context if service breaks (take code from ADLES).
 
 ## Dev
 * Build script to bump version, build installer, tag GitHub release
