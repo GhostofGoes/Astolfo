@@ -11,33 +11,20 @@
 * Link to open app
 * Link to open the specific episode in the app
 
+# Useful programs
+* `Inspect.exe` for looking at Window information (Windows 10 SDK)
+* `ILSpy` is somewhat useful
+* ProcessExplorer (Sysinternals)
+* OLE Viewer
 
-# Notes
-Want to follow Discord's recommendations as much as possible here
-https://discordapp.com/developers/docs/rich-presence/best-practices
-Ideal status information
-  Show name
-  Season number
-  Episode number
-  Episode name
-  Start time, current time, or end time (so we can show elapsed/remaining using startTimestamp/endTimestamp) 
-
-Example:
-```
-  Funimation
-  Full Metal Panic!
-  S2 E9 | Her Problem
-  Elapsed: 6:03
-```
-
-Format:
-* App name
-* Details (this will wrap lines)
-* Status (string)
-* start (int)
-
-Other useful information that might be excessive, but let's see if we can get it
-* Season name
+# Crunchyroll
+Making some progress on this, definitely more than Funimation.
+There are actual win32 UI objects (WinForms?) that are able to be emumerated
+and interacted with. Using `Inspect.exe`, I was able to find the name of
+currently playing episode, episodes in the list when in the menu, and player
+elements. Might be able to get current time from the player elements,
+and the show by constantly monitoring and saving some sort of state
+when user starts watching. It'd be brittle, but better than nothing.
 
 
 # Funimation
@@ -78,6 +65,33 @@ Playing episodes:
 *  172.217.12.14:80
 *  172.217.12.4:443
 *  38.122.56.118:443
+
+# Format
+Want to follow Discord's recommendations as much as possible here
+https://discordapp.com/developers/docs/rich-presence/best-practices
+Ideal status information
+  Show name
+  Season number
+  Episode number
+  Episode name
+  Start time, current time, or end time (so we can show elapsed/remaining using startTimestamp/endTimestamp)
+
+Example:
+```
+  Funimation
+  Full Metal Panic!
+  S2 E9 | Her Problem
+  Elapsed: 6:03
+```
+
+Format:
+* App name
+* Details (this will wrap lines)
+* Status (string)
+* start (int)
+
+Other useful information that might be excessive, but let's see if we can get it
+* Season name
 
 # Code snippets
 

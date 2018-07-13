@@ -27,10 +27,11 @@ import sys
 from pprint import pformat
 import time
 
+from docopt import docopt
 import psutil
 from pypresence import Presence
-
-from docopt import docopt
+# import win32gui
+# import win32process
 
 
 __version__ = '0.1.0'
@@ -49,6 +50,23 @@ PROCS = {
 }
 
 
+# def get_windows(pid: int) -> dict:
+#     def callback(hwnd, cb_hwnds):
+#         if win32gui.IsWindowVisible(hwnd) and win32gui.IsWindowEnabled(hwnd):
+#             _, found_pid = win32process.GetWindowThreadProcessId(hwnd)
+#             if found_pid == pid:
+#                 cb_hwnds.append(hwnd)
+#         return True
+#     hwnds = []
+#     windows = {}
+#     win32gui.EnumWindows(callback, hwnds)
+#     for win in hwnds:
+#         title = str(win32gui.GetWindowText(win)).lower()
+#         if title != '':
+#             windows[title] = win
+#     return windows
+
+
 def get_process(name: str) -> psutil.Process:
     for proc in psutil.process_iter():
         if name.lower() in proc.name().lower():
@@ -62,6 +80,7 @@ def get_process(name: str) -> psutil.Process:
 class PresenceClient:
 
     def __init__(self, name: str):
+        self.name = name.lower()
         self.process_name = PROCS[name]
         self.proc = get_process(self.process_name)
         if self.proc is None:
@@ -69,10 +88,32 @@ class PresenceClient:
                           f"for {name.capitalize()}. Ensure it's running, "
                           f"then try again.")
             sys.exit(1)
-        self.name = name
+
+        # if name == 'crunchyroll':
+        #     # TODO: minor problem...can only get HWND when it's stopped. WTF?
+        #     self.proc.suspend()
+        #     print(self.proc.status())
+        #     windows = get_windows(self.proc.pid)
+        #     self.proc.resume()
+        #     logging.debug(windows)
+        #
+        #     if name not in windows:
+        #         logging.error(f"Couldn't find the {name.capitalize()} "
+        #                       f"window! (PID: {self.proc.pid})")
+        #         sys.exit(1)
+        #     childs = []
+        #     def cb(hwnd, hwnds):
+        #         hwnds.append(hwnd)
+        #         return True
+        #     win32gui.EnumChildWindows(window, cb, childs)
+        #     print(childs)
+        #     sys.exit(0)
+
+        # Initialize Discord RPC client
         self.discord = Presence(CLIENT_ID)  # Initialize the client class
         self.discord.connect()  # Start the handshake loop
         atexit.register(self.discord.close)  # Ensure it get's closed on exit
+
         self.unique_ips = set()  # For debugging purposes
 
     def get_episode_id(self) -> tuple:
