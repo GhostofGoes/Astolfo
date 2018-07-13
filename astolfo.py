@@ -1,22 +1,28 @@
 #!/usr/bin/env python3
 
-"""Discord Presence.
+"""Astolfo: Discord Rich Presence for Windows 10 Apps.
 
-Update your Discord status with what you're currently watching!
-Targetting Windows 10 UWP apps, which are notorious for lack of integration.
-Currently, it supports the FunimationNow app.
+Share what show you're watching with all your friends on Discord!
+ Basically, Astolfo provides Discord status (aka Rich Presence) for
+ Windows 10 Microsoft Store apps. Currently, I am working on support for
+ Crunchyroll and Funimation, with goals of expanding it to Netflix,
+ Rooster Teeth, and others in the future.
 
 Usage:
-  run.py [options] [APP]
+  astolfo.py [options] [APP]
 
 Arguments:
-    APP         Name of application client to monitor [default: funimation]
+    APP         Name of application to monitor [default: funimation]
 
 Options:
   -h, --help     Show this help
   --version      Show the version
   -v, --verbose  Enable verbose output (DEBUG-level messages)
   -d, --debug    Enable debugging mode, for development purposes
+  
+Author:
+    Christopher Goes <ghostofgoes(at)gmail.com>
+    https://github.com/GhostofGoes/Astolfo
 
 """
 
@@ -30,11 +36,14 @@ import time
 from docopt import docopt
 import psutil
 from pypresence import Presence
-# import win32gui
-# import win32process
+import win32gui
+import win32process
 
 
 __version__ = '0.1.0'
+__author__ = 'Christopher Goes'
+__email__ = 'ghostofgoes@gmail.com'
+
 CLIENT_ID = "463903446764879892"
 DEBUG = False
 
@@ -50,21 +59,21 @@ PROCS = {
 }
 
 
-# def get_windows(pid: int) -> dict:
-#     def callback(hwnd, cb_hwnds):
-#         if win32gui.IsWindowVisible(hwnd) and win32gui.IsWindowEnabled(hwnd):
-#             _, found_pid = win32process.GetWindowThreadProcessId(hwnd)
-#             if found_pid == pid:
-#                 cb_hwnds.append(hwnd)
-#         return True
-#     hwnds = []
-#     windows = {}
-#     win32gui.EnumWindows(callback, hwnds)
-#     for win in hwnds:
-#         title = str(win32gui.GetWindowText(win)).lower()
-#         if title != '':
-#             windows[title] = win
-#     return windows
+def get_windows(pid: int) -> dict:
+    def callback(hwnd, cb_hwnds):
+        if win32gui.IsWindowVisible(hwnd) and win32gui.IsWindowEnabled(hwnd):
+            _, found_pid = win32process.GetWindowThreadProcessId(hwnd)
+            if found_pid == pid:
+                cb_hwnds.append(hwnd)
+        return True
+    hwnds = []
+    windows = {}
+    win32gui.EnumWindows(callback, hwnds)
+    for win in hwnds:
+        title = str(win32gui.GetWindowText(win)).lower()
+        if title != '':
+            windows[title] = win
+    return windows
 
 
 def get_process(name: str) -> psutil.Process:
@@ -185,5 +194,5 @@ def main(args: dict):
 
 
 if __name__ == '__main__':
-    arguments = docopt(__doc__, version=f'Discord Presence {__version__}')
+    arguments = docopt(__doc__, version=f'Astolfo {__version__}')
     main(args=arguments)
