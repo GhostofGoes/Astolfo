@@ -1,21 +1,11 @@
-# TODO list
-* Rename project to "media-discord-presence" or something.
-* Setup this app as a Windows service. It could either just check perodically for the Funimation process,
-      or I could investigate if there's a way for the OS to wake us up somehow.
-* Get the current time of whatever's playing (need to dive into memory for this most likely)
-* Get the playing state (paused/playing)
-* Setup Transparent HTTPS proxy. Want to see if I can figure out Funimation's API (if it exists...)
 
-## Stuff we need the "Spotify" rich API for
-* Send email asking about Spotify-like integration: gamedevs@discordapp.com
-* Link to open app
-* Link to open the specific episode in the app
 
 # Useful programs
 * `Inspect.exe` for looking at Window information (Windows 10 SDK)
 * `ILSpy` is somewhat useful
 * ProcessExplorer (Sysinternals)
 * OLE Viewer
+
 
 # Crunchyroll
 Making some progress on this, definitely more than Funimation.
@@ -28,17 +18,11 @@ when user starts watching. It'd be brittle, but better than nothing.
 
 
 # Funimation
-
-## Assets
-* funimation_logo_large
-* funimation_logo_small
-* full_metal_panic_large
-
 I suspect the episode "id" is incremented by two per episode since there may be two audo languages, English and Japanese.
 The app doesn't make it easy to switch languages, however, so don't have a easy way to validate this hypothesis.
 Either way, we can get the language from the filename.
 
-File Path example:
+### File Path example
 ```
 \\AppData\\Local\\Packages\\FunimationProductionsLTD.FunimationNow_nat5s4eq2a0cr\\AC\\INetHistory
 \\mms\\HUOPOA32\\1345116_English_431a16b9-c95a-e711-8175-020165574d09[1].dat
@@ -53,30 +37,33 @@ File Path example:
 * Full Metal Panic Season 2 Episode 10: 1345128 (English)
 * Full Metal Panic Season 3 Episode 1: 1755434 (English)
 
-## Looking at the servers
-Homepage IP (nslookup funimation.com): 107.154.106.169
+## Looking at the Funimation servers
+Homepage IP (`nslookup funimation.com`)
+* 107.154.106.169
 
 No episode playing:
-  172.217.12.14 - This is a Google analytics server
+*  172.217.12.14 - This is a Google analytics server
 
-Playing episodes:
+### Playing episodes
 *  107.154.108.80:443
 *  143.204.31.65:443
 *  172.217.12.14:80
 *  172.217.12.4:443
 *  38.122.56.118:443
 
+
 # Format
 Want to follow Discord's recommendations as much as possible here
 https://discordapp.com/developers/docs/rich-presence/best-practices
-Ideal status information
-  Show name
-  Season number
-  Episode number
-  Episode name
-  Start time, current time, or end time (so we can show elapsed/remaining using startTimestamp/endTimestamp)
 
-Example:
+### Ideal status information
+*  Show name
+*  Season number
+*  Episode number
+*  Episode name
+*  Start time, current time, or end time (so we can show elapsed/remaining using startTimestamp/endTimestamp)
+
+### Example
 ```
   Funimation
   Full Metal Panic!
@@ -84,14 +71,12 @@ Example:
   Elapsed: 6:03
 ```
 
-Format:
+### Format
 * App name
 * Details (this will wrap lines)
 * Status (string)
 * start (int)
 
-Other useful information that might be excessive, but let's see if we can get it
-* Season name
 
 # Code snippets
 
@@ -113,3 +98,9 @@ open it the "canonical" way, whatever that is for UWP apps.
 cmdline = process.cmdline()
 logging.debug("Program cmdline: %s", ' '.join(cmdline))
 ```
+
+
+# Assets
+* funimation_logo_large
+* funimation_logo_small
+* full_metal_panic_large
