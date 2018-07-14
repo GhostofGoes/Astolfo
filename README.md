@@ -9,7 +9,7 @@ goals of expanding it to Netflix, Rooster Teeth, and others in the future.
 
 ## Usage
 Requires Python 3.6+ ([link](https://www.python.org/downloads/release/python-370/))
-```powershell
+```cmd
 python -m pip install --user -r requirements.txt
 python .\astolfo.py
 ```

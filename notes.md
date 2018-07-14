@@ -80,6 +80,7 @@ https://discordapp.com/developers/docs/rich-presence/best-practices
 
 # Code snippets
 
+## psutil
 ```python
 from pprint import pprint
 print(process)
@@ -97,6 +98,14 @@ open it the "canonical" way, whatever that is for UWP apps.
 ```python
 cmdline = process.cmdline()
 logging.debug("Program cmdline: %s", ' '.join(cmdline))
+```
+
+## pyinstaller
+```powershell
+pyinstaller --clean -y --onefile --icon .\installer\astolfo.ico --specpath .\installer\ -n Astolfo --version-file .\installer\file_version_info.
+txt .\astolfo.py
+
+pyinstaller --clean -y .\installer\Astolfo.spec
 ```
 
 
