@@ -3,6 +3,7 @@
 "media-discord-presence" or something.
 * [x] Fancy short name for CLI + Service
 * [x] Windows installer using `pynsist` or `pyinstaller`
+* [ ] **Shit, I need to make a seperate Discord app for each app we support**
 * [ ] Setup as a Windows service. If any app we support starts up, we start
 monitoring it. We could just check perodically, or perhaps there's a way
 for Windows to notify us.
