@@ -2,9 +2,22 @@
 [![pypresence](https://img.shields.io/badge/using-pypresence-00bb88.svg?style=for-the-badge&logo=discord&logoWidth=20)](https://github.com/qwertyquerty/pypresence)
 
 
-Discord status (aka Rich Presence) for Windows 10 Microsoft Store apps.
+![Watching an Episode](https://i.imgur.com/KzBivUm.png)
+
+Discord Rich Presence for Windows 10 Microsoft Store apps. In other
+words, it updates your Discord status when you're watching something.
 Currently, I am working on support for Crunchyroll and Funimation, with
 goals of expanding it to Netflix, Rooster Teeth, and others in the future.
+
+
+**WARNING: this is still very much in the "Alpha" phase.** All you're going to get
+right now is the fact you have the Crunchyroll/Funimation app open. There's
+still a lot of work to be done on reverse engineering how these bloody
+apps work (Funimation especially).
+
+If you're willing to help in this
+endeavour, open a issue or ping me on the
+[Python Discord server](https://discord.gg/python) (@KnownError).
 
 
 ## Usage
