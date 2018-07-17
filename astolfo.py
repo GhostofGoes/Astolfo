@@ -130,11 +130,13 @@ class PresenceClient:
         open_files = self.proc.open_files()
         for file in open_files:
             # See notes.md for an example of the file path (it's really long)
-            if 'INetHistory' in file.path:
+            if 'INetHistory' in file.path or 'INetCache' in file.path:
                 base = os.path.basename(file.path)
                 parts = base.split('_')
                 return parts[0], parts[1]  # Episode ID, Language
-        # TODO: raise an error instead of returning a empty tuple?
+        logging.debug("Couldn't find an episode ID")
+        if DEBUG:
+            logging.debug(pformat(open_files))
         return ()
 
     @staticmethod
@@ -144,13 +146,16 @@ class PresenceClient:
         eid = int(episode_id)
         if (eid >= 1755434 and eid <= 1755450) or \
            (eid >= 1345110 and eid <= 1345140):
-            details[f'large_image'] = f"full_metal_panic_large"
-            details[f'large_text'] = "Full Metal Panic!"
-            details[f'small_image'] = f"funimation_logo_small"
-            details[f'small_text'] = "FunimationNow"
+            details['large_image'] = "full_metal_panic_large"
+            details['large_text'] = "Full Metal Panic!"
+            details['small_image'] = "funimation_logo_small"
+            details['small_text'] = "FunimationNow"
+            name = "Full Metal Panic!"
         else:
-            details[f'large_image'] = f"funimation_logo_large"
-            details[f'large_text'] = "FunimationNow"
+            details['large_image'] = "funimation_logo_large"
+            details['large_text'] = "FunimationNow"
+            name = f"episode {str(episode_id)}"
+        details['details'] = f"Watching {name}"
         return details
 
     def update(self):
@@ -162,7 +167,6 @@ class PresenceClient:
             logging.info(f"Episode ID: {episode_id}\tLanguage: {language}")
             kwargs = {
                 'pid': self.proc.pid,
-                'details': f"Watching episode {episode_id}",
                 'state': f"Language: {language}"
             }
             kwargs.update(self.lookup_episode(episode_id))
