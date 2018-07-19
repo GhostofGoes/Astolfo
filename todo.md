@@ -14,8 +14,9 @@ service, as well as it adds some flexibility.
 ## Dev
 * [ ] Build script to bump version, build installer, tag GitHub release
 (like Flask's make-release.py).
+* [ ] setup.py
 * [ ] Unit tests.
-* [ ] Upload assets to GitHub.
+* [x] Upload assets to GitHub.
 
 
 # Discord
