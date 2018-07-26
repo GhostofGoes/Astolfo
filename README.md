@@ -4,9 +4,14 @@
 
 # Astolfo - Discord Presence for Windows 10
 Update your Discord status with the show you're watching on the Windows 10
-Microsoft Store apps for Funimation, Crunchyroll, and more!
+Microsoft Store apps for  Crunchyroll, Netflix, and more!
 
-![Watching an Episode](https://i.imgur.com/KzBivUm.png)
+Currently supported apps:
+* Funimation
+* Crunchyroll
+* Netflix
+* Windows Media Player
+
 
 ## Usage
 Requires Python 3.6+ ([link](https://www.python.org/downloads/release/python-370/))
