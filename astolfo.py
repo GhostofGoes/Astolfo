@@ -40,11 +40,11 @@ import win32gui
 import win32process
 
 
-__version__ = '0.1.0'
+__version__ = '0.2.0'
 __author__ = 'Christopher Goes'
 __email__ = 'ghostofgoes@gmail.com'
 
-CLIENT_ID = "463903446764879892"
+# Enable debugging mode
 DEBUG = False
 
 # "Discord_UpdatePresence() has a rate limit of one update per 15 seconds"
@@ -56,6 +56,41 @@ PROCS = {
     'funimation': 'Funimation.exe',
     # TODO: this is incorrect, as wwahost is a host for apps, not an app
     'netflix': 'WWAHost.exe',
+    'windows media player': 'wmplayer.exe',
+}
+
+# FUTURE APPS:
+#   VLC Media Player
+#   iTunes
+CLIENTS = {
+    'funimation': {
+        'client_id': '463903446764879892',
+        'full_name': 'FunimationNow',
+        'process': 'Funimation.exe',
+        'default_details': 'Watching some anime',
+        'default_state': '  ',
+    },
+    'crunchyroll': {
+        'client_id': '471880598668181555',
+        'full_name': 'Crunchyroll',
+        'process': 'CR.WinApp.exe',
+        'default_details': 'Watching some anime',
+        'default_state': '  ',
+    },
+    'netflix': {
+        'client_id': '471883383866392596',
+        'full_name': 'Netflix',
+        'process': 'WWAHost.exe',
+        'default_details': 'Binging a show',
+        'default_state': '  ',
+    },
+    'windows media player': {
+        'client_id': '471884051259588609',
+        'full_name': 'Windows Media Player',
+        'process': 'wmplayer.exe',
+        'default_details': 'Watching a video on Windows',
+        'default_state': '  ',
+    },
 }
 
 
@@ -90,13 +125,26 @@ class PresenceClient:
 
     def __init__(self, name: str):
         self.name = name.lower()
-        self.process_name = PROCS[name]
+        self.full_name = CLIENTS[self.name]['full_name']
+        self.process_name = CLIENTS[self.name]['process']
+        self.client_id = CLIENTS[self.name]['client_id']
+        self.default_details = CLIENTS[self.name]['default_details']
+        self.default_state = CLIENTS[self.name]['default_state']
+
+        self.start_time = int(time.time())
         self.proc = get_process(self.process_name)
         if self.proc is None:
             logging.error(f"Could not find the process {self.process_name} "
                           f"for {name.capitalize()}. Ensure it's running, "
                           f"then try again.")
             sys.exit(1)
+
+        # Initialize Discord RPC client
+        self.discord = Presence(self.client_id)  # Initialize the client class
+        self.discord.connect()  # Start the handshake loop
+        atexit.register(self.discord.close)  # Ensure it get's closed on exit
+
+        self.unique_ips = set()  # For debugging purposes
 
         # if name == 'crunchyroll':
         #     # TODO: minor problem...can only get HWND when it's stopped. WTF?
@@ -118,58 +166,62 @@ class PresenceClient:
         #     print(childs)
         #     sys.exit(0)
 
-        # Initialize Discord RPC client
-        self.discord = Presence(CLIENT_ID)  # Initialize the client class
-        self.discord.connect()  # Start the handshake loop
-        atexit.register(self.discord.close)  # Ensure it get's closed on exit
+    def get_state(self) -> str:
+        """Returns state string"""
+        state = self.default_state
+        if self.name == 'funimation':
+            open_files = self.proc.open_files()
+            for file in open_files:
+                # See notes.md for an example of the file path (it's really long)
+                if 'INetHistory' in file.path or 'INetCache' in file.path:
+                    base = os.path.basename(file.path)
+                    parts = base.split('_')
+                    # Episode ID, Language
+                    return f'Watching Episode {parts[0]}\tLanguage: {parts[1]}'
+            logging.debug("Couldn't find an episode ID")
+            if DEBUG:
+                logging.debug(pformat(open_files))
+        return state
 
-        self.unique_ips = set()  # For debugging purposes
-
-    def get_episode_id(self) -> tuple:
-        """Returns Episode ID and Language."""
-        open_files = self.proc.open_files()
-        for file in open_files:
-            # See notes.md for an example of the file path (it's really long)
-            if 'INetHistory' in file.path or 'INetCache' in file.path:
-                base = os.path.basename(file.path)
-                parts = base.split('_')
-                return parts[0], parts[1]  # Episode ID, Language
-        logging.debug("Couldn't find an episode ID")
-        if DEBUG:
-            logging.debug(pformat(open_files))
-        return ()
-
-    @staticmethod
-    def lookup_episode(episode_id: str) -> dict:
-        # maybe do some lookup dictionary
-        details = {}
-        eid = int(episode_id)
-        if (eid >= 1755434 and eid <= 1755450) or \
-           (eid >= 1345110 and eid <= 1345140):
-            details['large_image'] = "full_metal_panic_large"
-            details['large_text'] = "Full Metal Panic!"
-            details['small_image'] = "funimation_logo_small"
-            details['small_text'] = "FunimationNow"
-            name = "Full Metal Panic!"
-        else:
-            details['large_image'] = "funimation_logo_large"
-            details['large_text'] = "FunimationNow"
-            name = f"episode {str(episode_id)}"
-        details['details'] = f"Watching {name}"
-        return details
+    # @staticmethod
+    # def lookup_episode(episode_id: str) -> dict:
+    #     # maybe do some lookup dictionary
+    #     details = {}
+    #     eid = int(episode_id)
+    #     if (eid >= 1755434 and eid <= 1755450) or \
+    #        (eid >= 1345110 and eid <= 1345140):
+    #         details['large_image'] = "full_metal_panic_large"
+    #         details['large_text'] = "Full Metal Panic!"
+    #         details['small_image'] = "funimation_logo_small"
+    #         details['small_text'] = "FunimationNow"
+    #         name = "Full Metal Panic!"
+    #     else:
+    #         details['large_image'] = "funimation_logo_large"
+    #         details['large_text'] = "FunimationNow"
+    #         name = f"episode {str(episode_id)}"
+    #     details['details'] = f"Watching {name}"
+    #     return details
 
     def update(self):
         try:
-            episode_id, language = self.get_episode_id()
+            # episode_id, language = self.get_episode_id()
+            state = self.get_state()
         except ValueError:
             logging.info("No episode playing")
         else:
-            logging.info(f"Episode ID: {episode_id}\tLanguage: {language}")
+            # logging.info(f"Episode ID: {episode_id}\tLanguage: {language}")
+            logging.info(f"State: {state}")
             kwargs = {
                 'pid': self.proc.pid,
-                'state': f"Language: {language}"
+                'large_image': 'logo_large',
+                'large_text': self.full_name,
+                'small_image': 'logo_small',
+                'small_text': self.full_name,
+                'start': self.start_time,
+                'details': self.default_details,
+                'state': state,
             }
-            kwargs.update(self.lookup_episode(episode_id))
+            # kwargs.update(self.lookup_episode(episode_id))
             logging.info("Updating Discord status...")
             logging.debug(f"Values:\n{pformat(kwargs)}")
             self.discord.update(**kwargs)  # Update the user's status on Discord
