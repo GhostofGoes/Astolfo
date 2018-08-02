@@ -77,6 +77,17 @@ https://discordapp.com/developers/docs/rich-presence/best-practices
 * Status (string)
 * start (int)
 
+# Windows service
+So...wasted 45 minutes trying to get this darn thing to just start
+Turns out you need to run post-install script for pywin32
+Hopefully won't have to do this if I bundle as a exe...we'll see
+```powershell
+# Fix pywin32 service install
+python 'C:\Program Files\Python36\Scripts\pywin32_postinstall.py' -install`
+
+# To install as automatic service
+python service.py --startup=auto install
+```
 
 # Code snippets
 
@@ -107,9 +118,3 @@ txt .\astolfo.py
 
 pyinstaller --clean -y .\installer\Astolfo.spec
 ```
-
-
-# Assets
-* funimation_logo_large
-* funimation_logo_small
-* full_metal_panic_large

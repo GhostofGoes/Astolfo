@@ -1,32 +1,52 @@
-import os
-import pathlib
-import json
+#!/usr/bin/env python3
+
+from pathlib import Path
 
 import servicemanager
 import win32service
 import win32serviceutil
 import win32event
 
+from astolfo import Client
 
+
+# Constants - DO NOT CHANGE
 INFO = 1
 WARN = 2
 ERR = 3
 STARTING = servicemanager.PYS_SERVICE_STARTING
 STOPPING = servicemanager.PYS_SERVICE_STOPPING
 
-# TODO: config file (JSON)
+# TODO: config file (JSON/INI?)
 # TODO: configure logging output to go to some standard directory?
+WORKDIR = Path(__file__).absolute()
+CONFIG_FILE = WORKDIR / 'config.ini'
 
 
-# So...wasted 45 minutes trying to get this darn thing to just start
-# Turns out you need to run post-install script for pywin32
-# Hopefully won't have to do this if I bundle as a exe...we'll see
-# python 'C:\Program Files\Python36\Scripts\pywin32_postinstall.py' -install
+def info(message: str):
+    servicemanager.LogInfoMsg(str(message))
 
-# To install as automatic service: python service.py --startup=auto install
+
+def warn(message: str):
+    servicemanager.LogWarningMsg(str(message))
+
+
+def error(message: str):
+    servicemanager.LogErrorMsg(str(message))
+
+
+def get_config(file=CONFIG_FILE):
+    if not file.is_file():
+        error(f"Could not find configuration file {file}!")
+
+
+
 class AstolfoService(win32serviceutil.ServiceFramework):
-    """Windows Service for Astolfo. Pulled from various sources:
+    """Windows Service for Astolfo.
 
+    To install as automatic service: `python service.py --startup=auto install`
+
+    Credit to:
     Chris Umbel (chrisumbel.com/article/windows_services_in_python)
     Zen_Z (codeproject.com/Articles/1115336/Using-Python-to-Make-a-Windows-Service)
     pywin32 (github.com/mhammond/pywin32/win32/Demos/service/serviceEvents.py)
@@ -66,6 +86,8 @@ class AstolfoService(win32serviceutil.ServiceFramework):
         self.log_state(servicemanager.PYS_SERVICE_STARTING)
         self.ReportServiceStatus(win32service.SERVICE_RUNNING)
         self.log_state(servicemanager.PYS_SERVICE_STARTED)
+        self.log(f"Working directory is {WORKDIR}.\n"
+                 f"Configuration file is {CONFIG_FILE}")
 
         # Run the main logic
         self.service_main()

@@ -27,6 +27,7 @@ Author:
 """
 
 import atexit
+import configparser
 import logging
 import os.path
 import sys
@@ -93,6 +94,12 @@ CLIENTS = {
     },
 }
 
+def get_config(filename):
+    config = configparser.ConfigParser()
+    config.read(filename)
+    config['DEFAULT']
+    return config
+
 
 def get_windows(pid: int) -> dict:
     def callback(hwnd, cb_hwnds):
@@ -121,15 +128,18 @@ def get_process(name: str) -> psutil.Process:
     logging.warning(f"Couldn't find proc {name}")
 
 
-class PresenceClient:
+class Client:
 
-    def __init__(self, name: str):
+    def __init__(self, config, name: str):
+        self.log = logging.getLogger('Client')
+
         self.name = name.lower()
         self.full_name = CLIENTS[self.name]['full_name']
         self.process_name = CLIENTS[self.name]['process']
         self.client_id = CLIENTS[self.name]['client_id']
         self.default_details = CLIENTS[self.name]['default_details']
         self.default_state = CLIENTS[self.name]['default_state']
+        
 
         self.start_time = int(time.time())
         self.proc = get_process(self.process_name)
@@ -235,12 +245,12 @@ def main(args: dict):
     global DEBUG
     DEBUG = arguments['--debug']
     log_level = logging.DEBUG if args['--verbose'] else logging.INFO
-    logging.basicConfig(datefmt="%H:%M:%S", level=log_level,
-                        format="%(asctime)s %(levelname)-7s %(message)s")
+    logging.basicConfig(datefmt="%H:%M:%S", level=log_level, filename='astolfo.log',
+                        format="%(asctime)s %(levelname)-7s %(name)-7s %(message)s")
     logging.getLogger('asyncio').setLevel(logging.ERROR)
 
     client_name = (args['APP'] or 'funimation')
-    client = PresenceClient(client_name)
+    client = Client(client_name)
 
     # TODO: when I make it a service, just wait around for proc to respawn when it dies
     while client.proc.is_running():
@@ -250,5 +260,6 @@ def main(args: dict):
 
 
 if __name__ == '__main__':
+    # TODO: install service option?
     arguments = docopt(__doc__, version=f'Astolfo {__version__}')
     main(args=arguments)
