@@ -28,7 +28,7 @@ Author:
 
 import atexit
 import configparser
-import logging
+import logging.config
 import os.path
 import sys
 from pprint import pformat
@@ -41,7 +41,7 @@ import win32gui
 import win32process
 
 
-__version__ = '0.2.0'
+__version__ = '0.2.1'
 __author__ = 'Christopher Goes'
 __email__ = 'ghostofgoes@gmail.com'
 
@@ -94,10 +94,48 @@ CLIENTS = {
     },
 }
 
+LOG_CONFIG = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'standard': {
+            'format': '%(asctime)s %(levelname)-7s %(name)-7s %(message)s',
+            'datefmt': '%H:%M:%S',
+        },
+    },
+    'handlers': {
+        'console': {
+            'level': 'INFO',
+            'formatter': 'standard',
+            'class': 'logging.StreamHandler',
+            'stream': 'ext://sys.stdout',
+        },
+        'file': {
+            'level': 'DEBUG',
+            'formatter': 'standard',
+            'class': 'logging.FileHandler',
+            'filename': 'astolfo.log',
+        }
+    },
+    'loggers': {
+        '': {
+            'handlers': ['console', 'file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+        'asyncio': {
+            'handlers': ['file'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+    },
+}
+
+
 def get_config(filename):
     config = configparser.ConfigParser()
     config.read(filename)
-    config['DEFAULT']
+    # config['DEFAULT']
     return config
 
 
@@ -130,7 +168,7 @@ def get_process(name: str) -> psutil.Process:
 
 class Client:
 
-    def __init__(self, config, name: str):
+    def __init__(self, name: str):  # config
         self.log = logging.getLogger('Client')
 
         self.name = name.lower()
@@ -139,14 +177,13 @@ class Client:
         self.client_id = CLIENTS[self.name]['client_id']
         self.default_details = CLIENTS[self.name]['default_details']
         self.default_state = CLIENTS[self.name]['default_state']
-        
 
         self.start_time = int(time.time())
         self.proc = get_process(self.process_name)
         if self.proc is None:
-            logging.error(f"Could not find the process {self.process_name} "
-                          f"for {name.capitalize()}. Ensure it's running, "
-                          f"then try again.")
+            self.log.error(f"Could not find the process {self.process_name} "
+                           f"for {name.capitalize()}. Ensure it's running, "
+                           f"then try again.")
             sys.exit(1)
 
         # Initialize Discord RPC client
@@ -187,8 +224,8 @@ class Client:
                     base = os.path.basename(file.path)
                     parts = base.split('_')
                     # Episode ID, Language
-                    return f'Watching Episode {parts[0]}\tLanguage: {parts[1]}'
-            logging.debug("Couldn't find an episode ID")
+                    return f'Episode {parts[0]} - {parts[1]}'
+            self.log.debug("Couldn't find an episode ID")
             if DEBUG:
                 logging.debug(pformat(open_files))
         return state
@@ -217,10 +254,10 @@ class Client:
             # episode_id, language = self.get_episode_id()
             state = self.get_state()
         except ValueError:
-            logging.info("No episode playing")
+            self.log.info("No episode playing")
         else:
             # logging.info(f"Episode ID: {episode_id}\tLanguage: {language}")
-            logging.info(f"State: {state}")
+            self.log.info(f"State: {state}")
             kwargs = {
                 'pid': self.proc.pid,
                 'large_image': 'logo_large',
@@ -232,22 +269,22 @@ class Client:
                 'state': state,
             }
             # kwargs.update(self.lookup_episode(episode_id))
-            logging.info("Updating Discord status...")
-            logging.debug(f"Values:\n{pformat(kwargs)}")
+            self.log.info("Updating Discord status...")
+            self.log.debug(f"Values:\n{pformat(kwargs)}")
             self.discord.update(**kwargs)  # Update the user's status on Discord
             if DEBUG:
                 for conn in self.proc.connections():
                     self.unique_ips.add((conn.raddr.ip, conn.raddr.port))
-                logging.debug(f"Unique IPs: {pformat(self.unique_ips)}")
+                    self.log.debug(f"Unique IPs: {pformat(self.unique_ips)}")
 
 
 def main(args: dict):
     global DEBUG
     DEBUG = arguments['--debug']
-    log_level = logging.DEBUG if args['--verbose'] else logging.INFO
-    logging.basicConfig(datefmt="%H:%M:%S", level=log_level, filename='astolfo.log',
-                        format="%(asctime)s %(levelname)-7s %(name)-7s %(message)s")
-    logging.getLogger('asyncio').setLevel(logging.ERROR)
+    console_level = 'DEBUG' if args['--verbose'] else 'INFO'
+    LOG_CONFIG['handlers']['console']['level'] = console_level
+    logging.config.dictConfig(LOG_CONFIG)
+    logging.captureWarnings(True)
 
     client_name = (args['APP'] or 'funimation')
     client = Client(client_name)

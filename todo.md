@@ -3,13 +3,14 @@
 "media-discord-presence" or something.
 * [x] Fancy short name for CLI + Service
 * [x] Windows installer using `pynsist` or `pyinstaller`
-* [ ] **Shit, I need to make a seperate Discord app for each app we support**
+* [x] Need to make a seperate Discord app for each app we support
 * [ ] Setup as a Windows service. If any app we support starts up, we start
 monitoring it. We could just check perodically, or perhaps there's a way
 for Windows to notify us.
-* [ ] Configuration via INI/JSON file. Needed to setup as a Windows
+* [x] Configuration via INI/JSON file. Needed to setup as a Windows
 service, as well as it adds some flexibility.
 * [ ] Improve logging output so we have context if service breaks (take code from ADLES).
+* [ ] Add config.ini to Windows EXE build
 
 ## Dev
 * [ ] Build script to bump version, build installer, tag GitHub release

@@ -118,3 +118,18 @@ txt .\astolfo.py
 
 pyinstaller --clean -y .\installer\Astolfo.spec
 ```
+
+# Errors
+
+```
+(presence) PS Astolfo>python .\astolfo.py --debug --verbose funimation
+Exception ignored in: <object repr() failed>
+Traceback (most recent call last):
+  File "C:\Program Files\Python36\lib\asyncio\proactor_events.py", line 95, in __del__
+    warnings.warn("unclosed transport %r" % self, ResourceWarning,
+  File "C:\Program Files\Python36\lib\asyncio\proactor_events.py", line 54, in __repr__
+    info.append('fd=%s' % self._sock.fileno())
+  File "C:\Program Files\Python36\lib\asyncio\windows_utils.py", line 152, in fileno
+    raise ValueError("I/O operatioon on closed pipe")
+ValueError: I/O operatioon on closed pipe
+```
