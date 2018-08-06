@@ -7,7 +7,7 @@ import win32service
 import win32serviceutil
 import win32event
 
-from astolfo import Client
+from .astolfo import Client, get_config
 
 
 # Constants - DO NOT CHANGE
@@ -17,7 +17,6 @@ ERR = 3
 STARTING = servicemanager.PYS_SERVICE_STARTING
 STOPPING = servicemanager.PYS_SERVICE_STOPPING
 
-# TODO: config file (JSON/INI?)
 # TODO: configure logging output to go to some standard directory?
 WORKDIR = Path(__file__).absolute()
 CONFIG_FILE = WORKDIR / 'config.ini'
@@ -40,18 +39,10 @@ def get_config(file=CONFIG_FILE):
         error(f"Could not find configuration file {file}!")
 
 
-
 class AstolfoService(win32serviceutil.ServiceFramework):
     """Windows Service for Astolfo.
 
-    To install as automatic service: `python service.py --startup=auto install`
-
-    Credit to:
-    Chris Umbel (chrisumbel.com/article/windows_services_in_python)
-    Zen_Z (codeproject.com/Articles/1115336/Using-Python-to-Make-a-Windows-Service)
-    pywin32 (github.com/mhammond/pywin32/win32/Demos/service/serviceEvents.py)
-            (github.com/mhammond/pywin32/win32/Lib/win32serviceutil.py#L747)
-    django-windows-tools (github.com/antoinemartin/django-windows-tools)"""
+    To install as automatic service: `python service.py --startup=auto install`"""
 
     # Name of the service (Use with `net` command, e.g. `net start Astolfo`)
     _svc_name_ = "Astolfo"
@@ -67,8 +58,14 @@ class AstolfoService(win32serviceutil.ServiceFramework):
     # _exe_args_ = None  # Default to no arguments
     # _svc_deps_ = None  # Sequence of service names on which this depends
 
+    _config_filename = 'config.ini'
+
     def __init__(self, args):
         win32serviceutil.ServiceFramework.__init__(self, args)
+        self.dir = Path(__file__).resolve().parent()
+        self.config_file = self.dir / self._config_filename
+        self.config = None
+
         # Create an event to listen for stop requests on
         self.stop_event = win32event.CreateEvent(None, 0, 0, None)
 
@@ -86,26 +83,17 @@ class AstolfoService(win32serviceutil.ServiceFramework):
         self.log_state(servicemanager.PYS_SERVICE_STARTING)
         self.ReportServiceStatus(win32service.SERVICE_RUNNING)
         self.log_state(servicemanager.PYS_SERVICE_STARTED)
-        self.log(f"Working directory is {WORKDIR}.\n"
-                 f"Configuration file is {CONFIG_FILE}")
+        self.log(f"Working directory is {self.dir}.\n"
+                 f"Configuration file is {self._config_filename}")
+        self.config = get_config(self.config_file)
 
         # Run the main logic
         self.service_main()
 
-    # Uncomment these to implement "Pause" functionality
-    # def SvcPause(self):
-    #     pass
-    #
-    # def SvcContinue(self):
-    #     pass
-
-    # Uncomment this to implement logic that should occur at system shutdown
-    # def SvcShutdown(self):
-    #     pass
-
     def service_main(self):
         """Core logic of the service."""
         # TODO: set timeout to be more than the 15 seconds for each presence update
+        # self.client = Client()
         win32event.WaitForSingleObject(self.stop_event, win32event.INFINITE)
         # while rc != win32event.WAIT_OBJECT_0:
         #     # block for 5 seconds and listen for a stop event

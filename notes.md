@@ -89,6 +89,20 @@ python 'C:\Program Files\Python36\Scripts\pywin32_postinstall.py' -install`
 python service.py --startup=auto install
 ```
 
+## Pause/Continue/Shutdown
+```python
+# Uncomment these to implement "Pause" functionality
+# def SvcPause(self):
+#     pass
+#
+# def SvcContinue(self):
+#     pass
+
+# Uncomment this to implement logic that should occur at system shutdown
+# def SvcShutdown(self):
+#     pass
+```
+
 # Code snippets
 
 ## psutil
@@ -120,7 +134,6 @@ pyinstaller --clean -y .\installer\Astolfo.spec
 ```
 
 # Errors
-
 ```
 (presence) PS Astolfo>python .\astolfo.py --debug --verbose funimation
 Exception ignored in: <object repr() failed>
@@ -133,3 +146,12 @@ Traceback (most recent call last):
     raise ValueError("I/O operatioon on closed pipe")
 ValueError: I/O operatioon on closed pipe
 ```
+
+# Credit
+
+Credit to:
+    Chris Umbel (chrisumbel.com/article/windows_services_in_python)
+    Zen_Z (codeproject.com/Articles/1115336/Using-Python-to-Make-a-Windows-Service)
+    pywin32 (github.com/mhammond/pywin32/win32/Demos/service/serviceEvents.py)
+            (github.com/mhammond/pywin32/win32/Lib/win32serviceutil.py#L747)
+    django-windows-tools (github.com/antoinemartin/django-windows-tools)

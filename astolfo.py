@@ -21,7 +21,7 @@ Options:
   -d, --debug    Enable debugging mode, for development purposes
   
 Author:
-    Christopher Goes <ghostofgoes(at)gmail.com>
+    Christopher Goes <ghostofgoes(at)gmail(com)>
     https://github.com/GhostofGoes/Astolfo
 
 """
@@ -43,7 +43,6 @@ import win32process
 
 __version__ = '0.2.1'
 __author__ = 'Christopher Goes'
-__email__ = 'ghostofgoes@gmail.com'
 
 # Enable debugging mode
 DEBUG = False
@@ -99,7 +98,7 @@ LOG_CONFIG = {
     'disable_existing_loggers': False,
     'formatters': {
         'standard': {
-            'format': '%(asctime)s %(levelname)-7s %(name)-7s %(message)s',
+            'format': '%(asctime)s %(levelname)-7s %(message)s',
             'datefmt': '%H:%M:%S',
         },
     },
@@ -132,10 +131,9 @@ LOG_CONFIG = {
 }
 
 
-def get_config(filename):
+def get_config(file):
     config = configparser.ConfigParser()
-    config.read(filename)
-    # config['DEFAULT']
+    config.read(file)
     return config
 
 
