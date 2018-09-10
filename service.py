@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 
 from pathlib import Path
+import os
+import json
 import time
+import logging.config
 
 import servicemanager
 import win32service
@@ -20,10 +23,11 @@ STARTING = servicemanager.PYS_SERVICE_STARTING
 STOPPING = servicemanager.PYS_SERVICE_STOPPING
 
 # TODO: configure logging output to go to some standard directory?
-WORKDIR = Path(__file__).absolute()
+WORKDIR = Path(__file__).resolve()
 CONFIG_FILE = WORKDIR / 'config.ini'
 WAIT_TIME = 5.0
 
+# TODO: generic identification methods?
 PROCS = {
     'crunchyroll': {
         'id_val': 'CR.WinApp.exe',
@@ -87,6 +91,7 @@ class AstolfoService(win32serviceutil.ServiceFramework):
         self.dir = Path(__file__).resolve().parent()
         self.config_file = self.dir / self._config_filename
         self.config = None
+        self.log_config = None
 
         self.apps = PROCS
         self.client = None
@@ -113,10 +118,29 @@ class AstolfoService(win32serviceutil.ServiceFramework):
         self.log_state(servicemanager.PYS_SERVICE_STARTED)
         self.log(f"Working directory is {self.dir}.\n"
                  f"Configuration file is {self._config_filename}")
+
+        # Load configuration
         self.config = get_config(self.config_file)
+
+        # Configure logging
+        log_output_file = self._get_path('General', 'LOG_FILE')
+        log_config_file = self._get_path('General', 'LOG_CONFIG')
+        self.log_config = json.loads(log_config_file.read_text())
+        self.log_config['handlers']['file']['filename'] = log_output_file
+        logging.config.dictConfig(self.log_config)
+        if self.config.getboolean('General', 'CAPTURE_WARNINGS'):
+            logging.captureWarnings(True)
 
         # Run the main logic
         self.service_main()
+
+    def _get_path(self, section: str, value: str) -> Path:
+        file = self.config.get(section, value)
+        if os.pathsep in file:  # If they specify the path, assume it's absolute
+            file = Path(file).resolve()
+        else:  # Otherwise, it's relative to the WORKDIR
+            file = self.dir / file
+        return file
 
     def service_main(self):
         """Core logic of the service."""
