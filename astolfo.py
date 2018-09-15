@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 """Astolfo: Discord Rich Presence for Windows 10 Apps.
 
 Share what show you're watching with all your friends on Discord!
