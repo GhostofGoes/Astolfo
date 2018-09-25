@@ -1,0 +1,26 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+pypresence = "<3.0.0,>=2.0.0"
+psutil = "<6.0.0,>=5.4.0"
+docopt = "==0.6.2"
+"pywin32" = ">=223"
+
+[dev-packages]
+pyinstaller = "*"
+"flake8" = "*"
+"flake8-bugbear" = "*"
+"flake8-import-order" = "*"
+"flake8-tidy-imports" = "*"
+"flake8-todo" = "*"
+"flake8-string-format" = "*"
+
+[requires]
+python_version = "3.7"
+
+[scripts]
+run = "python astolfo.py"
+install = "python service.py"
