@@ -9,23 +9,23 @@ Windows 10 programs (win32) and Store Apps (UWP).
 Update your Discord status with the show you're watching on the Windows 10
 Microsoft Store apps for Crunchyroll, Netflix, and more!
 
-Currently supported apps:
-* Funimation
-* Crunchyroll
-* Netflix
-* Windows Media Player
-
 
 ## Usage
 Requires Python 3.6+ ([link](https://www.python.org/downloads/release/python-370/))
 ```cmd
-python -m pip install --user -r requirements.txt
+pipenv sync
 python .\astolfo.py
 ```
 
 ## Project Status
 Currently, I am working on support for Crunchyroll and Funimation, with
 goals of expanding it to Netflix, Rooster Teeth, and others in the future.
+
+Currently "supported" apps:
+* Funimation
+* Crunchyroll
+* Netflix
+* Windows Media Player
 
 
 **WARNING: this is still very much in the "Alpha" phase.**
