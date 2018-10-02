@@ -64,30 +64,35 @@ CLIENTS = {
     'funimation': {
         'client_id': '463903446764879892',
         'full_name': 'FunimationNow',
-        'process': 'Funimation.exe',
         'default_details': 'Watching some anime',
         'default_state': '  ',
+        'id_type': 'process',
+        'process': 'Funimation.exe',
     },
     'crunchyroll': {
         'client_id': '471880598668181555',
         'full_name': 'Crunchyroll',
-        'process': 'CR.WinApp.exe',
         'default_details': 'Watching some anime',
         'default_state': '  ',
+        'id_type': 'process',
+        'process': 'CR.WinApp.exe',
     },
+    # TODO: this is incorrect, as WWAHost.exe is a generic host for UWP apps
     'netflix': {
         'client_id': '471883383866392596',
         'full_name': 'Netflix',
-        'process': 'WWAHost.exe',
         'default_details': 'Binging a show',
         'default_state': '  ',
+        'id_type': 'process',
+        'process': 'WWAHost.exe',
     },
     'windows media player': {
         'client_id': '471884051259588609',
         'full_name': 'Windows Media Player',
-        'process': 'wmplayer.exe',
         'default_details': 'Watching a video on Windows',
         'default_state': '  ',
+        'id_type': 'process',
+        'process': 'wmplayer.exe',
     },
 }
 

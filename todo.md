@@ -57,5 +57,5 @@ service, as well as it adds some flexibility.
 * [ ] Publish to PyPI as a package (Easier install).
 * [ ] Make core functionality a seperate PyPI package with an API, so others
 can use it as a way to interact with UWP apps and write their own rich
-presence clients. Have the Windows service and CLI use that package.
+presence apps. Have the Windows service and CLI use that package.
 * [ ] Automated runs of unit tests using Appveyor.

@@ -3,8 +3,11 @@
 
 
 # Astolfo - Discord Presence for Windows 10
+Astolfo is a framework for implementing Discord Rich Presence for
+Windows 10 programs (win32) and Store Apps (UWP).
+
 Update your Discord status with the show you're watching on the Windows 10
-Microsoft Store apps for  Crunchyroll, Netflix, and more!
+Microsoft Store apps for Crunchyroll, Netflix, and more!
 
 Currently supported apps:
 * Funimation
