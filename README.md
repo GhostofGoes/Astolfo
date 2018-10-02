@@ -43,4 +43,4 @@ The [Python Discord server](https://discord.gg/python) is a good place
 to ask questions or discuss the project (Handle: @KnownError).
 
 ## Contributers
-*
+* Christopher Goes (ghostofgoes)
