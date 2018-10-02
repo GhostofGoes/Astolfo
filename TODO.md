@@ -11,6 +11,10 @@ for Windows to notify us.
 service, as well as it adds some flexibility.
 * [ ] Improve logging output so we have context if service breaks (take code from ADLES).
 * [ ] Add config.ini to Windows EXE build
+* [ ] Handling active status (switching between apps)
+* [ ] Background monitoring using the Window service
+* [ ] Reverse engineering Netflix and various other apps to a level where we can get playback information
+* [ ] Designing a program architecture to make it relatively straightforward to drop in support for a new app
 
 ## Dev
 * [ ] Build script to bump version, build installer, tag GitHub release

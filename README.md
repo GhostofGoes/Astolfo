@@ -33,9 +33,14 @@ All you're going to get right now is the fact you have the
 Crunchyroll/Funimation app open. There's still plenty of work to
 be done on reverse engineering these apps, Funimation especially.
 
-If you're willing to help in this
-endeavour, open a issue or ping me on the
-[Python Discord server](https://discord.gg/python) (@KnownError).
 
+# Contributing
+Contributers are more than welcome!
+See the [contribution guide](CONTRIBUTING.md) to get started,
+and checkout the [todo list](TODO.md) for a full list of tasks and bugs.
 
+The [Python Discord server](https://discord.gg/python) is a good place
+to ask questions or discuss the project (Handle: @KnownError).
 
+## Contributers
+*
