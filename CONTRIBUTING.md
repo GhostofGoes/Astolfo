@@ -4,9 +4,8 @@ Thanks for taking an interest in this awesome little project. We love
 to bring new members into the community, and can always use the help.
 
 ## Important resources
-* Bug reports and issues: create an issue on GitHub
+* Bug reports and issues: create an issue on [GitHub](https://github.com/GhostofGoes/Astolfo/issues)
 * Discussion: the [Python Discord server](https://discord.gg/python)
-
 
 # Where to contribute
 
@@ -23,7 +22,7 @@ to bring new members into the community, and can always use the help.
 * Improving distribution: installer, bundling, etc.
 
 # Getting started
-1. Create your own fork of the code through GitHub web interface
+1. Create your own fork of the code through GitHub web interface ([Here's a Guide](https://gist.github.com/Chaser324/ce0505fbed06b947d962))
 2. Clone the fork to your computer. This can be done using the
 [GitHub desktop](https://desktop.github.com/) GUI , `git clone <fork-url>`,
 or the Git tools in your favorite editor or IDE.
