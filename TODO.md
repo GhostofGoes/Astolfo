@@ -16,6 +16,11 @@ service, as well as it adds some flexibility.
 * [ ] Reverse engineering Netflix and various other apps to a level where we can get playback information
 * [ ] Designing a program architecture to make it relatively straightforward to drop in support for a new app
 
+## Distribution/Installation
+* [ ] Distribute via PyInstaller or pynsist installer that will setup the service and such, and no mucking with Python.
+* [ ] Distribute in a similar mannager on Linux via a Snap?
+* [ ] Create PyPI package, mainly for Linux users
+
 ## Dev
 * [ ] Build script to bump version, build installer, tag GitHub release
 (like Flask's make-release.py).
