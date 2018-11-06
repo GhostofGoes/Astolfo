@@ -4,23 +4,31 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-pypresence = "<3.0.0,>=2.0.0"
-psutil = "<6.0.0,>=5.4.0"
+pypresence = "*"
+psutil = "*"
 docopt = "==0.6.2"
-"pywin32" = ">=223"
+pywin32 = {version = "*", sys_platform = "== 'win32'"}
+appdirs = "*"
+python-decouple = "*"
 
 [dev-packages]
 pyinstaller = "*"
-"flake8" = "*"
-"flake8-bugbear" = "*"
-"flake8-import-order" = "*"
-"flake8-tidy-imports" = "*"
-"flake8-todo" = "*"
-"flake8-string-format" = "*"
+tox = ">=3.4"
+setuptools = ">=38.6.0"
+twine = "*"
+codespell = "*"
+pytest = ">=3.4"
+pytest-cov = "*"
+flake8 = "*"
+flake8-bugbear = "*"
+flake8-import-order = "*"
+flake8-tidy-imports = "*"
+flake8-todo = "*"
+flake8-string-format = "*"
 
 [requires]
 python_version = "3.7"
 
 [scripts]
-run = "python astolfo.py"
-install = "python service.py"
+run = "python -m astolfo"
+# install = "python service.py"
