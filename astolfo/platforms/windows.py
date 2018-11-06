@@ -10,8 +10,6 @@ import win32serviceutil
 import win32event
 import psutil
 
-from .astolfo import Client, get_config, CLIENTS
-
 
 # Constants - DO NOT CHANGE
 INFO = 1

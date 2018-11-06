@@ -25,76 +25,29 @@ Author:
 """
 
 import atexit
-import configparser
 import logging.config
 import os.path
 import sys
 from pprint import pformat
+from pathlib import Path
 import time
+from configparser import ConfigParser
 
 from docopt import docopt
 import psutil
 from pypresence import Presence
-import win32gui
-import win32process
-
 
 __version__ = '0.2.1'
 __author__ = 'Christopher Goes'
+DEBUG = False  # Enable debugging mode
 
-# Enable debugging mode
-DEBUG = False
+# "Discord_UpdatePresence() has a rate limit of one update per 15 seconds.
+#  Developers do not need to do anything to handle this rate limit.
+#  The SDK will queue up any presence updates sent in that window and send
+#  the newest one once the client is free to do so."
+# Soooo....we actually don't need to worry about this.
+# UPDATE_RATE = 15
 
-# "Discord_UpdatePresence() has a rate limit of one update per 15 seconds"
-UPDATE_RATE = 15
-
-# This enables us to alias in the future if need be
-PROCS = {
-    'crunchyroll': 'CR.WinApp.exe',
-    'funimation': 'Funimation.exe',
-    # TODO: this is incorrect, as wwahost is a host for apps, not an app
-    'netflix': 'WWAHost.exe',
-    'windows media player': 'wmplayer.exe',
-}
-
-# FUTURE APPS:
-#   VLC Media Player
-#   iTunes
-CLIENTS = {
-    'funimation': {
-        'client_id': '463903446764879892',
-        'full_name': 'FunimationNow',
-        'default_details': 'Watching some anime',
-        'default_state': '  ',
-        'id_type': 'process',
-        'process': 'Funimation.exe',
-    },
-    'crunchyroll': {
-        'client_id': '471880598668181555',
-        'full_name': 'Crunchyroll',
-        'default_details': 'Watching some anime',
-        'default_state': '  ',
-        'id_type': 'process',
-        'process': 'CR.WinApp.exe',
-    },
-    # TODO: this is incorrect, as WWAHost.exe is a generic host for UWP apps
-    'netflix': {
-        'client_id': '471883383866392596',
-        'full_name': 'Netflix',
-        'default_details': 'Binging a show',
-        'default_state': '  ',
-        'id_type': 'process',
-        'process': 'WWAHost.exe',
-    },
-    'windows media player': {
-        'client_id': '471884051259588609',
-        'full_name': 'Windows Media Player',
-        'default_details': 'Watching a video on Windows',
-        'default_state': '  ',
-        'id_type': 'process',
-        'process': 'wmplayer.exe',
-    },
-}
 
 LOG_CONFIG = {
     'version': 1,
@@ -134,29 +87,6 @@ LOG_CONFIG = {
 }
 
 
-def get_config(file):
-    config = configparser.ConfigParser()
-    config.read(file)
-    return config
-
-
-def get_windows(pid: int) -> dict:
-    def callback(hwnd, cb_hwnds):
-        if win32gui.IsWindowVisible(hwnd) and win32gui.IsWindowEnabled(hwnd):
-            _, found_pid = win32process.GetWindowThreadProcessId(hwnd)
-            if found_pid == pid:
-                cb_hwnds.append(hwnd)
-        return True
-    hwnds = []
-    windows = {}
-    win32gui.EnumWindows(callback, hwnds)
-    for win in hwnds:
-        title = str(win32gui.GetWindowText(win)).lower()
-        if title != '':
-            windows[title] = win
-    return windows
-
-
 def get_process(name: str) -> psutil.Process:
     for proc in psutil.process_iter():
         if name.lower() in proc.name().lower():
@@ -167,17 +97,23 @@ def get_process(name: str) -> psutil.Process:
     logging.warning(f"Couldn't find proc {name}")
 
 
+def read_config(filepath: Path) -> dict:
+    # TODO: error handling
+    parser = ConfigParser()
+    parser.read(filepath)
+    dict_config = {s: dict(parser.items(s)) for s in parser.sections()}
+    return dict_config
+
+
+# FUTURE APPS:
+#   VLC Media Player
+#   iTunes
+#   VMware Workstation (https://github.com/naim94a/vix)
+#   VirtualBox?
 class Client:
 
-    def __init__(self, name: str):  # config
+    def __init__(self):
         self.log = logging.getLogger('Client')
-
-        self.name = name.lower()
-        self.full_name = CLIENTS[self.name]['full_name']
-        self.process_name = CLIENTS[self.name]['process']
-        self.client_id = CLIENTS[self.name]['client_id']
-        self.default_details = CLIENTS[self.name]['default_details']
-        self.default_state = CLIENTS[self.name]['default_state']
 
         self.start_time = int(time.time())
         self.proc = get_process(self.process_name)
@@ -191,28 +127,6 @@ class Client:
         self.discord = Presence(self.client_id)  # Initialize the client class
         self.discord.connect()  # Start the handshake loop
         atexit.register(self.discord.close)  # Ensure it get's closed on exit
-
-        self.unique_ips = set()  # For debugging purposes
-
-        # if name == 'crunchyroll':
-        #     # TODO: minor problem...can only get HWND when it's stopped. WTF?
-        #     self.proc.suspend()
-        #     print(self.proc.status())
-        #     windows = get_windows(self.proc.pid)
-        #     self.proc.resume()
-        #     logging.debug(windows)
-        #
-        #     if name not in windows:
-        #         logging.error(f"Couldn't find the {name.capitalize()} "
-        #                       f"window! (PID: {self.proc.pid})")
-        #         sys.exit(1)
-        #     childs = []
-        #     def cb(hwnd, hwnds):
-        #         hwnds.append(hwnd)
-        #         return True
-        #     win32gui.EnumChildWindows(window, cb, childs)
-        #     print(childs)
-        #     sys.exit(0)
 
     def get_state(self) -> str:
         """Returns state string"""
@@ -231,33 +145,12 @@ class Client:
                 logging.debug(pformat(open_files))
         return state
 
-    # @staticmethod
-    # def lookup_episode(episode_id: str) -> dict:
-    #     # maybe do some lookup dictionary
-    #     details = {}
-    #     eid = int(episode_id)
-    #     if (eid >= 1755434 and eid <= 1755450) or \
-    #        (eid >= 1345110 and eid <= 1345140):
-    #         details['large_image'] = "full_metal_panic_large"
-    #         details['large_text'] = "Full Metal Panic!"
-    #         details['small_image'] = "funimation_logo_small"
-    #         details['small_text'] = "FunimationNow"
-    #         name = "Full Metal Panic!"
-    #     else:
-    #         details['large_image'] = "funimation_logo_large"
-    #         details['large_text'] = "FunimationNow"
-    #         name = f"episode {str(episode_id)}"
-    #     details['details'] = f"Watching {name}"
-    #     return details
-
     def update(self):
         try:
-            # episode_id, language = self.get_episode_id()
             state = self.get_state()
         except ValueError:
             self.log.info("No episode playing")
         else:
-            # logging.info(f"Episode ID: {episode_id}\tLanguage: {language}")
             self.log.info(f"State: {state}")
             kwargs = {
                 'pid': self.proc.pid,
@@ -269,7 +162,6 @@ class Client:
                 'details': self.default_details,
                 'state': state,
             }
-            # kwargs.update(self.lookup_episode(episode_id))
             self.log.info("Updating Discord status...")
             self.log.debug(f"Values:\n{pformat(kwargs)}")
             self.discord.update(**kwargs)  # Update the user's status on Discord
