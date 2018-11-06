@@ -28,13 +28,13 @@ import atexit
 import logging.config
 import os.path
 import sys
-from pprint import pformat
-from pathlib import Path
 import time
 from configparser import ConfigParser
+from pathlib import Path
+from pprint import pformat
 
-from docopt import docopt
 import psutil
+from docopt import docopt
 from pypresence import Presence
 
 __version__ = '0.2.1'
@@ -106,10 +106,10 @@ def read_config(filepath: Path) -> dict:
 
 
 # FUTURE APPS:
-#   VLC Media Player
-#   iTunes
-#   VMware Workstation (https://github.com/naim94a/vix)
-#   VirtualBox?
+#   VLC Media Player (Cross-platform) [https://wiki.videolan.org/PythonBinding]
+#   iTunes (Windows-only)
+#   VirtualBox (Cross-platform) [https://pypi.org/project/pyvbox/]
+#   Xbox Live (Windows-only)
 class Client:
 
     def __init__(self):

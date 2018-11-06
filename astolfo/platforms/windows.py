@@ -1,15 +1,14 @@
-from pathlib import Path
-import os
 import json
-import time
 import logging.config
+import os
+import time
+from pathlib import Path
 
+import psutil
 import servicemanager
+import win32event
 import win32service
 import win32serviceutil
-import win32event
-import psutil
-
 
 # Constants - DO NOT CHANGE
 INFO = 1

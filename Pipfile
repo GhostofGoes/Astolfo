@@ -7,16 +7,22 @@ name = "pypi"
 pypresence = "*"
 psutil = "*"
 docopt = "==0.6.2"
-pywin32 = {version = "*", sys_platform = "== 'win32'"}
-appdirs = "*"
+pywin32 = {version = "*", platform_system = "== 'Windows'"}
+WMI = {version = "*", platform_system = "== 'Windows'"}
+"delegator.py" = "*"
+watchdog = "*"
+appdirs = "*"  # Platform-specific directories (github.com/ActiveState/appdirs)
 python-decouple = "*"
+vix = "*"  # VMware Vix (github.com/naim94a/vix)
 
 [dev-packages]
 pyinstaller = "*"
 tox = ">=3.4"
 setuptools = ">=38.6.0"
+wheel = "*"
 twine = "*"
 codespell = "*"
+pylint = "*"
 pytest = ">=3.4"
 pytest-cov = "*"
 flake8 = "*"
