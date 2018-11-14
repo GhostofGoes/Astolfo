@@ -31,6 +31,7 @@ flake8-import-order = "*"
 flake8-tidy-imports = "*"
 flake8-todo = "*"
 flake8-string-format = "*"
+bandit = "*"
 
 [requires]
 python_version = "3.7"
@@ -38,3 +39,4 @@ python_version = "3.7"
 [scripts]
 run = "python -m astolfo"
 # install = "python service.py"
+bandit = "python -m bandit -r astolfo"
