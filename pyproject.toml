@@ -1,0 +1,41 @@
+[tool.poetry]
+name = "astolfo"
+version = "0.3.0"
+description = "Framework for implementing Discord Rich Presence across platforms"
+authors = ["Christopher Goes <ghostofgoes@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+repository = "https://github.com/GhostofGoes/Astolfo"
+keywords = ["discord", "rich-presence", "status", "apps", "anime"]
+
+[tool.poetry.dependencies]
+python = "^3.6"
+pywin32 = {version = "^224.0",platform = "win32"}
+WMI = {version = "^1.4",platform = "win32"}
+pypresence = "^3.3"
+vix = "^1.0"
+psutil = "^5.5"
+"delegator.py" = "^0.1.1"
+watchdog = "^0.9.0"
+appdirs = "^1.4"
+
+[tool.poetry.dev-dependencies]
+pytest = "^3.0"
+flake8 = "^3.7"
+codespell = "^1.14"
+flake8-bugbear = "^18.8"
+flake8-import-order = "^0.18.0"
+flake8-tidy-imports = "^1.1"
+flake8-todo = "^0.7.0"
+flake8-string-format = "^0.2.3"
+bandit = "^1.5"
+flake8-mypy = {git = "https://github.com/ambv/flake8-mypy.git"}
+pyinstaller = "^3.4"
+pytest-randomly = "^1.2"
+
+[tool.poetry.scripts]
+astolfo = 'astolfo.__main__:main'
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
