@@ -1,9 +1,8 @@
-"""Implements the functionality for Windows Media Player."""
-
-from ..app import App
+from astolfo import App
 
 
-class Netflix(App):
+class WMP(App):
+    """Windows Media Player."""
     full_name = 'Windows Media Player'
     client_id = '471884051259588609'
     process = 'wmplayer.exe'

@@ -1,10 +1,11 @@
-"""Implements the functionality for VMware Workstation.
-This includes Workstation Pro, Player, and (someday) Fusion."""
-
-from ..app import App
+from astolfo import App
 
 
 class VMware(App):
+    """VMware Workstation.
+
+    This includes Workstation Pro, Player, and (someday) Fusion.
+    """
     full_name = 'VMware Workstation'
     client_id = None  # TODO
     process = 'vmware.exe'
