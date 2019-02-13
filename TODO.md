@@ -1,33 +1,11 @@
 # General
-* [x] Rename project to reflect multi-app paradigm. Maybe
-"media-discord-presence" or something.
-* [x] Fancy short name for CLI + Service
-* [x] Windows installer using `pynsist` or `pyinstaller`
-* [x] Need to make a seperate Discord app for each app we support
-* [ ] Setup as a Windows service. If any app we support starts up, we start
-monitoring it. We could just check perodically, or perhaps there's a way
-for Windows to notify us.
-* [x] Configuration via INI/JSON file. Needed to setup as a Windows
-service, as well as it adds some flexibility.
-* [ ] Improve logging output so we have context if service breaks (take code from ADLES).
-* [ ] Add config.ini to Windows EXE build
 * [ ] Handling active status (switching between apps)
+* [ ] Handling priority for active apps
 * [ ] Background monitoring using the Window service
-* [ ] Reverse engineering Netflix and various other apps to a level where we can get playback information
-* [ ] Designing a program architecture to make it relatively straightforward to drop in support for a new app
 
 ## Distribution/Installation
 * [ ] Distribute via PyInstaller or pynsist installer that will setup the service and such, and no mucking with Python.
 * [ ] Distribute in a similar mannager on Linux via a Snap?
-* [ ] Create PyPI package, mainly for Linux users
-
-## Dev
-* [ ] Build script to bump version, build installer, tag GitHub release
-(like Flask's make-release.py).
-* [ ] setup.py
-* [ ] Unit tests.
-* [x] Upload assets to GitHub.
-
 
 # Discord
 * [ ] Send email asking about Spotify-like integration: gamedevs@discordapp.com
@@ -35,36 +13,10 @@ service, as well as it adds some flexibility.
 * [ ] Post on dev forum/SO about: Link to open app
 * [ ] Work on reverse-engineering the method Discord-Spotify communicate
 
-
-# Crunchyroll
-* [ ] Upload Crunchyroll assets for small and large images in presence
-* [ ] Subclass for crunchyroll
-
-## Playback
-* [ ] Title of currently playing episode
-* [ ] Current time in episode
-* [ ] Show name
-* [ ] Season name
-* [ ] Show artwork
-
-
 # Funimation
 * [ ] Get the current time of whatever's playing (need to dive into memory for this most likely)
 * [ ] Get the playing state (paused/playing)
 * [ ] Setup Transparent HTTPS proxy. Want to see if I can figure out Funimation's API (if it exists...)
 
-## Playback
-* [ ] Title of currently playing episode
-* [ ] Current time in episode
-* [ ] Show name
-* [ ] Season name
-* [ ] Show artwork
-
-
 # Stretch/Long term
 * [ ] GitHub.io page with documentation and downloads.
-* [ ] Publish to PyPI as a package (Easier install).
-* [ ] Make core functionality a seperate PyPI package with an API, so others
-can use it as a way to interact with UWP apps and write their own rich
-presence apps. Have the Windows service and CLI use that package.
-* [ ] Automated runs of unit tests using Appveyor.
