@@ -1,10 +1,14 @@
-# Editors
-.vscode
-.idea
+# Reverse Engineering artifacts (files from apps, traces/captures, command output, etc.)
+artifacts/
 
 # Packet Captures
 *.pcap
 *.pcapng
+
+# Editors and such
+.vscode/
+.idea/
+.vagrant/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
