@@ -2,6 +2,18 @@
 [![pypresence](https://img.shields.io/badge/using-pypresence-00bb88.svg?style=for-the-badge&logo=discord&logoWidth=20)](https://github.com/qwertyquerty/pypresence)
 
 
+# Project Status
+
+**THIS PROJECT IS NOT IN A WORKING STATE AND IS NOT BEING ACTIVELY DEVELOPED**
+
+Where things are at:
+* Funimation has removed their Windows 10 app.
+* Little progress has been made on RE'ing Crunchyroll's app to the point of extracting episode information.
+* PyPresence (used to update Discord status) is potentially not reliable or even working due to (very very unfortunate) changes to the Discord client. This is 100% Discord's fault, go yell at them, maybe they'll actually listen (unlikely).
+
+If you want to revive this, dig through some of the notes in the repo. Some work has been done on Crunchyroll and Netflix.
+
+
 # Astolfo - Discord Presence for Windows 10
 Astolfo is a framework for implementing Discord Rich Presence for
 Windows 10 programs (win32) and Store Apps (UWP).
@@ -16,22 +28,6 @@ Requires Python 3.6+ ([link](https://www.python.org/downloads/release/python-370
 pipenv sync
 python .\astolfo.py
 ```
-
-## Project Status
-Currently, I am working on support for Crunchyroll and Funimation, with
-goals of expanding it to Netflix, Rooster Teeth, and others in the future.
-
-Currently "supported" apps:
-* Funimation
-* Crunchyroll
-* Netflix
-* Windows Media Player
-
-
-**WARNING: this is still very much in the "Alpha" phase.**
-All you're going to get right now is the fact you have the
-Crunchyroll/Funimation app open. There's still plenty of work to
-be done on reverse engineering these apps, Funimation especially.
 
 
 # Contributing
